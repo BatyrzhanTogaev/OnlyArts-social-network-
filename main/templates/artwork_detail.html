@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ artwork.title }}</title>
+</head>
+<body>
+    <h1>{{ artwork.title }}</h1>
+    <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}">
+    <p>{{ artwork.description }}</p>
+    <p>Автор: {{ artwork.author }}</p>
+    <p>Дата загрузки: {{ artwork.created_at }}</p>
+    <p>Лайки: <span id="like-count">{{ artwork.likes }}</span></p>
+
+    <div>
+        <button id="like-button">Like</button>
+    </div>
+
+    <h2>Комментарии:</h2>
+    <ul id="comment-list">
+        {% for comment in comments %}
+            <li>
+                <strong>{{ comment.author.username }}:</strong>
+                {{ comment.content }} <em>({{ comment.created_at }})</em>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Форма для добавления комментария -->
+    <form id="comment-form">
+        {% csrf_token %}
+        <textarea id="comment-content" name="comment" placeholder="Добавить комментарий..." required></textarea>
+        <button type="submit">Добавить комментарий</button>
+    </form>
+
+    <!-- Подключение WebSocket -->
+    <script>
+        // Подключение к WebSocket
+        const artworkId = {{ artwork.id }};
+        const socket = new WebSocket(`ws://${window.location.host}/ws/artwork/${artworkId}/`);
+    
+        // Когда соединение установлено
+        socket.onopen = function(e) {
+            console.log('WebSocket соединение установлено.');
+        };
+    
+        // Когда приходит новое сообщение от сервера
+        socket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+    
+            if (data.action === 'like') {
+                document.getElementById('like-count').innerText = data.likes;
+            } else if (data.action === 'comment') {
+                const commentList = document.getElementById('comment-list');
+                const newComment = document.createElement('li');
+                newComment.innerHTML = `<strong>${data.comment.author}:</strong> ${data.comment.content} <em>(${data.comment.created_at})</em>`;
+                commentList.prepend(newComment);
+            }
+        };
+    
+        // Обработка ошибок WebSocket
+        socket.onerror = function(event) {
+            console.error('WebSocket error:', event);
+        };
+    
+        // Отправка лайка на сервер
+        document.getElementById('like-button').onclick = function() {
+            socket.send(JSON.stringify({
+                'action': 'like'
+            }));
+        };
+    
+        // Отправка комментария на сервер
+        document.getElementById('comment-form').onsubmit = function(e) {
+            e.preventDefault();
+            const commentInput = document.getElementById('comment-content');
+            const commentContent = commentInput.value;
+    
+            if (commentContent) {
+                socket.send(JSON.stringify({
+                    'action': 'comment',
+                    'content': commentContent
+                }));
+                commentInput.value = '';
+            }
+        };
+    </script>
+    
+</body>
+</html>
