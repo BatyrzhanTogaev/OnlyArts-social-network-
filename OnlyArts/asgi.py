@@ -14,7 +14,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.layers import get_channel_layer
 from main.routing import websocket_urlpatterns  # замените на ваше имя приложения
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')  # замените на ваше имя проекта
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'OnlyArts.settings')
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),

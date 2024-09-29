@@ -12,8 +12,6 @@ urlpatterns = [
     path('artwork/<int:artwork_id>/', ArtWorkDetailView.as_view(), name='artwork_detail'),
 
     path('ws/artwork/<int:artwork_id>/', ArtWorkConsumer.as_asgi()),
-
-
 ]
 
 if settings.DEBUG:
