@@ -9,20 +9,21 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 
 import os
 from django.core.asgi import get_asgi_application
-from django.urls import path
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from main import routing as main_routing 
+from channels.layers import get_channel_layer
+from main.routing import websocket_urlpatterns  # замените на ваше имя приложения
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'OnlyArts.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'your_project_name.settings')  # замените на ваше имя проекта
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(
         URLRouter(
-            main_routing.websocket_urlpatterns
+            websocket_urlpatterns
         )
     ),
 })
+
 
 

@@ -72,13 +72,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'OnlyArts.wsgi.application'
-ASGI_APPLICATION = 'OnlyArts.asgi.application'
+ASGI_APPLICATION = 'your_project_name.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [("127.0.0.1", 6379)],
+        },
     },
 }
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
